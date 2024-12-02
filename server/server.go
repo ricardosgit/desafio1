@@ -44,7 +44,9 @@ func handleServer(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, 200*time.Millisecond)
 	defer cancel()
-
+	if ctx.Err() != nil {
+		log.Println("Tempo de execução da cotação do dolar insuficiente")
+	}
 	req, err := http.NewRequestWithContext(ctx, "GET", "https://economia.awesomeapi.com.br/json/last/USD-BRL", nil)
 	if err != nil {
 		panic(err)
@@ -71,8 +73,11 @@ func handleServer(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	dbCtx, dbCancel := context.WithTimeout(ctx, 300*time.Millisecond)
+	dbCtx, dbCancel := context.WithTimeout(ctx, 10*time.Millisecond)
 	defer dbCancel()
+	if dbCtx.Err() != nil {
+		log.Println("Tempo de execução da gravação da cotação do dolar em banco insuficiente")
+	}
 
 	err = insertCotacao(dbCtx, &data)
 	if err != nil {

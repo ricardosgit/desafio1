@@ -32,6 +32,9 @@ func main() {
 	ctx := context.Background()
 	ctx, cancel := context.WithTimeout(ctx, 300*time.Millisecond)
 	defer cancel()
+	if ctx.Err() != nil {
+		log.Println("Tempo de execução da cotação do dolar insuficiente")
+	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", "http://localhost:8080/cotacao", nil)
 	if err != nil {
